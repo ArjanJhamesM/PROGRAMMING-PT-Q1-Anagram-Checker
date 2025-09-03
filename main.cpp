@@ -4,124 +4,98 @@
 #include <iterator>
 #include <array>
 #include <algorithm>
+#include <conio.h>
 
 using std::cin; // namespace aliases
 using std::cout;
 using std::endl;
 using std::string;
 
+string wordList[5] = {}; // reference list of input words
+
 struct ComparisonInfo {
-    string wordOne = "";
-    string wordTwo = "";
-    bool isAnagram = false;
+    string wordOne = ""; // word assigned at a particular column
+    string wordTwo = ""; // word assigned at a particular row
+    bool isAnagram = false; // result of anagram checker function
 };
 
-class AnagramCheck {
-    private:
+ComparisonInfo comparisonArray[5][5]; // 5 each for all rows and columns due to 5 words
+// each two-dimensional index holds ComparisonInfo struct to store information for anagram checking
 
-    public:
-
-
-};
+// stores letter occurrences as basis for anagram checking
+int wordOneOccurrences[26] = {};
+int wordTwoOccurrences[26] = {};
 
 void recordOccurrences(const string& word, int* wordOccurrences) {
-    for (int i = 0; i < word.size(); i++) {
-        int letterIndex = word[i] - 'A';
-
+    for (int i = 0; i < static_cast<int>(word.size()); i++) { // iterates each letter of the string array
+        int letterIndex = word[i] - 'A'; // 'A' as the reference point for alphabet position of iterated letter
+        // letterIndex locates where to record the number of times the iterated letter occurred in the specified word
         wordOccurrences[letterIndex] += 1;
     };
-}
-
-void outputOccurrences(const string& word, int size, int* wordOccurrences) {
-    cout << "For word: " << word << endl;
-    for (int i = 0; i < size; i++) {
-        if (wordOccurrences[i] != 0) {
-            cout << "Letter " << static_cast<char>('A' + i) << " (Index " << i << ") appeared " << wordOccurrences[i] << " times" << endl; // TODO: make more self-documenting
-        }
-    }
-    cout << endl;
 }
 
 bool checkForAnagram(const string &wordOne,
                      int *wordOneOccurrences,
                      const string &wordTwo,
-                     int *wordTwoOccurrences)
+                     int *wordTwoOccurrences) // bool return function to show the result of anagram check
 {
-    // NOTE: only call outputOccurrences at the beginning so it doesn't get spammed
     recordOccurrences(wordOne, wordOneOccurrences);
-    // outputOccurrences(wordOne, 26, wordOneOccurrences);
-
-    recordOccurrences(wordTwo, wordTwoOccurrences);
-    // outputOccurrences(wordTwo, 26, wordTwoOccurrences);
+    recordOccurrences(wordTwo, wordTwoOccurrences); // store occurrences record to word information variables
 
     if (!std::equal(wordOneOccurrences, wordOneOccurrences + 26,
-                    wordTwoOccurrences, wordTwoOccurrences + 26))
-    {
-        // cout << wordOne << " and " << wordTwo << " are NOT an anagram" << endl;
+                    wordTwoOccurrences, wordTwoOccurrences + 26)) 
+    { // guard clause: records, or elements, between the two occurrences arrays did not exactly match each other
         return false;
     }
 
-    // cout << wordOne << " and " << wordTwo << " are an anagram" << endl;
     return true;
 }
 
-string translateBoolValue(const bool boolean) {
-    if (boolean) {
-        return "True";
-    }
-    else {
-        return "False";
-    }
+// indicators for whether word input process is complete or not
+int currentWordCount = 0;
+
+bool hasMoreWordsToInput() {
+    return currentWordCount < 5;
+}
+
+// repeats until word input process is complete
+void askForWordInput(string *wordList, int currentWordCount) {
+    cout << endl;
+    cout << "For word " << currentWordCount << ": Enter a word for anagram checking" << endl;
+    std::getline(cin, wordList[currentWordCount]);
 }
 
 int main() {
-    ComparisonInfo comparisonArray[5][5];
-
-    string wordOne = "SILENT";
-
-    string wordTwo = "LISTEN";
-
-
-    int wordOneOccurrences[26] = {};
-
-    int wordTwoOccurrences[26] = {};
-
-
-    // checkForAnagram(wordOne, wordOneOccurrences, wordTwo, wordTwoOccurrences);
-
-    // string wordList[5] = {"test1", "test2", "test3", "test4", "test5"};
-
-    // cout << endl;
-    // for (int i = 0; i < 5; i++) {
-    //     for (int j = 0; j < 5; j++) {
-    //         cout << wordList[i] << " vs " << wordList[j] << endl;
-    //     }
-    // }
-
-    string wordList[5] = {"TESTONE", "TESTTWO", "TESTTHREE", "TESTFOUR", "TESTFIVE"};
-    // comparisonArray[0][0].wordOne = wordList[0];
-    // comparisonArray[0][0].wordTwo = wordList[1];
-    // comparisonArray[0][0].isAnagram = checkForAnagram(wordList[0], wordOneOccurrences, wordList[1], wordTwoOccurrences);
-
-    // cout << "Index (0, 0) First Word: " << comparisonArray[0][0].wordOne << endl;
-    // cout << "Index (0, 0) Second Word: " << comparisonArray[0][0].wordTwo << endl;
-    // cout << "Index (0, 0) Anagram Check Result: " << translateBoolValue(comparisonArray[0][0].isAnagram) << endl;
+    while (hasMoreWordsToInput()) { // updates progress of word input process
+        askForWordInput(wordList, currentWordCount);
+        currentWordCount++;
+    }
 
     cout << endl;
-    for (int i = 0; i < 5; i++) {
-        for (int j = 0; j < 5; j++) {
+
+    for (int i = 0; i < 5; i++) { // variable i mainly iterates over the column position of 2D array
+        cout << "***** WORD: " << wordList[i] << " ****" << endl;
+
+        for (int j = 0; j < 5; j++) { // variable j mainly iterates over the row position of 2D array
             std::fill(std::begin(wordOneOccurrences), std::end(wordOneOccurrences), 0);
-            std::fill(std::begin(wordTwoOccurrences), std::end(wordTwoOccurrences), 0);
+            std::fill(std::begin(wordTwoOccurrences), std::end(wordTwoOccurrences), 0); // reset occurrences arrays
 
-            comparisonArray[i][j].wordOne = wordList[i];
+            comparisonArray[i][j].wordOne = wordList[i]; // fill in word information for anagram checker results
             comparisonArray[i][j].wordTwo = wordList[j];
-            comparisonArray[i][j].isAnagram = checkForAnagram(comparisonArray[i][j].wordOne, wordOneOccurrences, comparisonArray[i][j].wordTwo, wordTwoOccurrences);
+            comparisonArray[i][j].isAnagram = checkForAnagram(comparisonArray[i][j].wordOne, wordOneOccurrences,
+                                                              comparisonArray[i][j].wordTwo, wordTwoOccurrences);
 
-            cout << "Index (" << i << ", " << j << ") First Word: " << comparisonArray[i][j].wordOne << endl;
-            cout << "Index (" << i << ", " << j << ") Second Word: " << comparisonArray[i][j].wordTwo << endl;
-            cout << "Index (" << i << ", " << j << ") Anagram Checker Result: " << translateBoolValue(comparisonArray[i][j].isAnagram) << endl;
+            cout << "Second Word: " << comparisonArray[i][j].wordTwo << // compared against word iterated by variable i
+                    "\t\t(Index (" << i << ", " << j << "))" << endl;
+            cout << "Anagram Checker Result: " << std::boolalpha << comparisonArray[i][j].isAnagram <<
+                    "\t(Index (" << i << ", " << j << "))" << endl; // output result of anagram checker between 2 words
+            cout << endl;
         }
+
+        cout << endl;
     }
+
+    _getch();
 
     return 0;
 }
